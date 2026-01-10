@@ -28,8 +28,8 @@ auto ArrowHandler::createShape(bool isAltDown, bool isShiftDown, bool isControlD
     // arrowDist is the distance between the line's and the arrow's tips
     // delta is the angle between each arrow leg and the line
 
-    // an appropriate opening angle 2*delta is Pi/3 radians for an arrow shape
-    double delta = M_PI / 6.0;
+    // an appropriate opening angle 2*delta is Pi/6 radians for more accurate arrow shape
+    double delta = M_PI / 12.0;
     // We use different slimness regimes for proper sizing:
     const double THICK1 = 7, THICK3 = 1.6;
     const double LENGTH2 = 0.4, LENGTH4 = (doubleEnded ? 0.5 : 0.8);

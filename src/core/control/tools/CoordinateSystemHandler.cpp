@@ -32,6 +32,11 @@ auto CoordinateSystemHandler::createShape(bool isAltDown, bool isShiftDown, bool
 
     double width = c.x - this->startPoint.x;
     double height = c.y - this->startPoint.y;
+    int signW = width > 0 ? 1 : -1;
+    int signH = height > 0 ? 1 : -1;
+    const double thickness = control->getToolHandler()->getThickness();
+    const double slimnessW = width / thickness;
+    const double slimnessH = height / thickness;
 
     this->modShift = isShiftDown;
     this->modControl = isControlDown;
@@ -44,8 +49,7 @@ auto CoordinateSystemHandler::createShape(bool isAltDown, bool isShiftDown, bool
 
     if (this->modShift) {
         // make square
-        int signW = width > 0 ? 1 : -1;
-        int signH = height > 0 ? 1 : -1;
+
         width = std::max(width * signW, height * signH) * signW;
         height = (width * signW) * signH;
     }
@@ -55,11 +59,85 @@ auto CoordinateSystemHandler::createShape(bool isAltDown, bool isShiftDown, bool
     Range rg(p1.x, p1.y);
     rg.addPoint(p1.x + width, p1.y + height);
 
-    if (!this->modControl) {
-        // draw out from starting point
-        return {{p1, Point(p1.x, p1.y + height), Point(p1.x + width, p1.y + height)}, rg};
-    } else {
-        // Control is down
-        return {{Point(p1.x, p1.y + height), p1, Point(p1.x + width, p1.y)}, rg};
+
+    // an appropriate opening angle 2*delta is Pi/3 radians for an arrow shape
+    double delta = M_PI / 15.0;
+    // We use different slimness regimes for proper sizing:
+    const double THICK1 = 7, THICK3 = 1.6;
+    const double LENGTH2 = 0.4, LENGTH4 = 0.8;
+    // set up the size of the arrow head to be THICK1 x the thickness of the horizontal line
+    double arrowDistW = thickness * THICK1;
+    // but not too large compared to the line length
+    if (slimnessW < THICK1 / LENGTH2) {
+        // no arrow
+        arrowDistW = 0;
     }
+    // set up the size of the arrow head to be THICK1 x the thickness of the vertical line
+    double arrowDistH = thickness * THICK1;
+    // but not too large compared to the line length
+    if (slimnessH < THICK1 / LENGTH2) {
+        // no arrow
+        arrowDistH = 0;
+    }
+
+    std::pair<std::vector<Point>, Range> res; // members initialised below
+    std::vector<Point>& shape = res.first;
+
+    int numPoints = 3;
+
+    if (signW > 0 && arrowDistW != 0) {
+        numPoints += 4;
+    } else {
+        arrowDistW = 0;
+    }
+    if (signH > 0 && arrowDistH != 0) {
+        numPoints += 4;
+    } else {
+        arrowDistH = 0;
+    }
+
+    shape.reserve(numPoints);
+
+    if (!this->modControl) {
+        shape.emplace_back(p1.x, p1.y);
+        if (arrowDistH != 0) {
+            shape.emplace_back(p1.x - arrowDistH * cos(M_PI / 2 + delta), p1.y + arrowDistH * sin(M_PI / 2 + delta));
+            shape.emplace_back(p1.x, p1.y);
+            shape.emplace_back(p1.x - arrowDistH * cos(M_PI / 2 - delta), p1.y + arrowDistH * sin(M_PI / 2 - delta));
+            shape.emplace_back(p1.x, p1.y);
+        }
+        shape.emplace_back(p1.x, p1.y + height);
+        shape.emplace_back(p1.x + width, p1.y + height);
+        if (arrowDistW != 0) {
+            shape.emplace_back(p1.x + width - arrowDistW * cos(delta), p1.y + height - arrowDistW * sin(delta));
+            shape.emplace_back(p1.x + width, p1.y + height);
+            shape.emplace_back(p1.x + width - arrowDistW * cos(0 - delta), p1.y + height - arrowDistW * sin(0 - delta));
+            shape.emplace_back(p1.x + width, p1.y + height);
+        }
+    } else {
+        // Control is down, no arrows
+        arrowDistH = 0;
+        arrowDistW = 0;
+        shape.emplace_back(p1.x, p1.y + height);
+        if (arrowDistH != 0) {
+            shape.emplace_back(p1.x - arrowDistH * cos(M_PI / 2 + delta), p1.y + height + arrowDistH * sin(M_PI / 2 + delta));
+            shape.emplace_back(p1.x, p1.y + height);
+            shape.emplace_back(p1.x - arrowDistH * cos(M_PI / 2 - delta), p1.y + height + arrowDistH * sin(M_PI / 2 - delta));
+            shape.emplace_back(p1.x, p1.y + height);
+        }
+        shape.emplace_back(p1.x, p1.y);
+        shape.emplace_back(p1.x + width, p1.y);
+        if (arrowDistW != 0) {
+            shape.emplace_back(p1.x + width - arrowDistW * cos(delta), p1.y - arrowDistW * sin(delta));
+            shape.emplace_back(p1.x + width, p1.y);
+            shape.emplace_back(p1.x + width - arrowDistW * cos(0 - delta), p1.y - arrowDistW * sin(0 - delta));
+            shape.emplace_back(p1.x + width, p1.y);
+        }
+    }
+
+    auto [minX, maxX] = std::minmax_element(shape.begin(), shape.end(), [](auto& p, auto& q) { return p.x < q.x; });
+    auto [minY, maxY] = std::minmax_element(shape.begin(), shape.end(), [](auto& p, auto& q) { return p.y < q.y; });
+    res.second = Range(minX->x, minY->y, maxX->x, maxY->y);
+
+    return res;
 }
