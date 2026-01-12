@@ -600,6 +600,7 @@ struct ActionPropDrawingTypes {
         actionDB->setActionState(Action::TOOL_DRAW_COORDINATE_SYSTEM, false);
         actionDB->setActionState(Action::TOOL_DRAW_LINE, false);
         actionDB->setActionState(Action::TOOL_DRAW_SPLINE, false);
+        actionDB->setActionState(Action::TOOL_DRAW_COSINE, false);
 
         g_simple_action_set_state(ga, p);
         bool enabled = g_variant_get_boolean(p);

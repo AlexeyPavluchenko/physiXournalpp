@@ -29,6 +29,7 @@
 #include "control/settings/Settings.h"              // for Settings
 #include "control/tools/ArrowHandler.h"             // for ArrowHandler
 #include "control/tools/CoordinateSystemHandler.h"  // for CoordinateSystemH...
+#include "control/tools/CosineHandler.h"           // for CosineHandler
 #include "control/tools/EditSelection.h"            // for EditSelection
 #include "control/tools/EllipseHandler.h"           // for EllipseHandler
 #include "control/tools/EraseHandler.h"             // for EraseHandler
@@ -273,7 +274,10 @@ auto XojPageView::onButtonPressEvent(const PositionInputData& pos) -> bool {
             case DRAWING_TYPE_ELLIPSE:
                 this->inputHandler = std::make_unique<EllipseHandler>(control, getPage());
                 break;
-            case DRAWING_TYPE_ARROW:
+            case DRAWING_TYPE_COSINE:
+                this->inputHandler = std::make_unique<CosineHandler>(control, getPage());
+                break;
+                case DRAWING_TYPE_ARROW:
                 this->inputHandler = std::make_unique<ArrowHandler>(control, getPage(), false);
                 break;
             case DRAWING_TYPE_DOUBLE_ARROW:
