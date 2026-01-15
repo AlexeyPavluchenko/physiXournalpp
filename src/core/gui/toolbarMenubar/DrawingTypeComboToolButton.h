@@ -47,6 +47,7 @@ public:
     enum class Type : size_t {
         RECTANGLE,
         ELLIPSE,
+        COSINE,
         ARROW,
         DOUBLE_ARROW,
         LINE,

@@ -616,6 +616,8 @@ struct ActionProperties<Action::TOOL_DRAW_RECTANGLE>: ActionPropDrawingTypes<DRA
 template <>
 struct ActionProperties<Action::TOOL_DRAW_ELLIPSE>: ActionPropDrawingTypes<DRAWING_TYPE_ELLIPSE> {};
 template <>
+struct ActionProperties<Action::TOOL_DRAW_COSINE>: ActionPropDrawingTypes<DRAWING_TYPE_COSINE> {};
+template <>
 struct ActionProperties<Action::TOOL_DRAW_ARROW>: ActionPropDrawingTypes<DRAWING_TYPE_ARROW> {};
 template <>
 struct ActionProperties<Action::TOOL_DRAW_DOUBLE_ARROW>: ActionPropDrawingTypes<DRAWING_TYPE_DOUBLE_ARROW> {};

@@ -57,7 +57,7 @@ void ToolHandler::initTools() {
             "pen", TOOL_PEN, Colors::xopp_royalblue,
             TOOL_CAP_COLOR | TOOL_CAP_SIZE | TOOL_CAP_RULER | TOOL_CAP_RECTANGLE | TOOL_CAP_ELLIPSE | TOOL_CAP_ARROW |
                     TOOL_CAP_DOUBLE_ARROW | TOOL_CAP_SPLINE | TOOL_CAP_RECOGNIZER | TOOL_CAP_FILL | TOOL_CAP_DASH_LINE |
-                    TOOL_CAP_LINE_STYLE,
+                    TOOL_CAP_COSINE |TOOL_CAP_LINE_STYLE,
             thickness);
 
     thickness[TOOL_SIZE_VERY_FINE] = 1;
@@ -77,7 +77,7 @@ void ToolHandler::initTools() {
     tools[TOOL_HIGHLIGHTER - TOOL_PEN] = std::make_unique<Tool>(
             "highlighter", TOOL_HIGHLIGHTER, Colors::yellow,
             TOOL_CAP_COLOR | TOOL_CAP_SIZE | TOOL_CAP_RULER | TOOL_CAP_RECTANGLE | TOOL_CAP_ELLIPSE | TOOL_CAP_ARROW |
-                    TOOL_CAP_DOUBLE_ARROW | TOOL_CAP_SPLINE | TOOL_CAP_RECOGNIZER | TOOL_CAP_FILL,
+                    TOOL_CAP_DOUBLE_ARROW | TOOL_CAP_SPLINE | TOOL_CAP_RECOGNIZER | TOOL_CAP_COSINE |TOOL_CAP_FILL,
             thickness);
 
     tools[TOOL_TEXT - TOOL_PEN] =
@@ -115,6 +115,9 @@ void ToolHandler::initTools() {
 
     tools[TOOL_DRAW_ELLIPSE - TOOL_PEN] =
             std::make_unique<Tool>("drawEllipse", TOOL_DRAW_ELLIPSE, Colors::black, TOOL_CAP_NONE, std::nullopt);
+
+    tools[TOOL_DRAW_COSINE - TOOL_PEN] =
+            std::make_unique<Tool>("drawCosine", TOOL_DRAW_COSINE, Colors::black, TOOL_CAP_NONE, std::nullopt);
 
     tools[TOOL_DRAW_ARROW - TOOL_PEN] =
             std::make_unique<Tool>("drawArrow", TOOL_DRAW_ARROW, Colors::black, TOOL_CAP_NONE, std::nullopt);
@@ -619,11 +622,12 @@ auto ToolHandler::isSinglePageTool() const -> bool {
     return ((toolType == TOOL_PEN || toolType == TOOL_HIGHLIGHTER) &&
             (drawingType == DRAWING_TYPE_ARROW || drawingType == DRAWING_TYPE_DOUBLE_ARROW ||
              drawingType == DRAWING_TYPE_ELLIPSE || drawingType == DRAWING_TYPE_COORDINATE_SYSTEM ||
+             drawingType == DRAWING_TYPE_COSINE ||
              drawingType == DRAWING_TYPE_LINE || drawingType == DRAWING_TYPE_RECTANGLE ||
              drawingType == DRAWING_TYPE_SPLINE)) ||
            toolType == TOOL_SELECT_RECT || toolType == TOOL_SELECT_REGION || toolType == TOOL_SELECT_MULTILAYER_RECT ||
            toolType == TOOL_SELECT_MULTILAYER_REGION || toolType == TOOL_SELECT_OBJECT ||
-           toolType == TOOL_DRAW_RECT || toolType == TOOL_DRAW_ELLIPSE || toolType == TOOL_DRAW_COORDINATE_SYSTEM ||
+           toolType == TOOL_DRAW_RECT || toolType == TOOL_DRAW_ELLIPSE || toolType == TOOL_DRAW_COSINE ||toolType == TOOL_DRAW_COORDINATE_SYSTEM ||
            toolType == TOOL_DRAW_ARROW || toolType == TOOL_DRAW_DOUBLE_ARROW || toolType == TOOL_FLOATING_TOOLBOX ||
            toolType == TOOL_DRAW_SPLINE || toolType == TOOL_SELECT_PDF_TEXT_LINEAR ||
            toolType == TOOL_SELECT_PDF_TEXT_RECT;
@@ -642,7 +646,7 @@ auto ToolHandler::supportsTapFilter() const -> bool {
 
     return toolType == TOOL_PEN || toolType == TOOL_HIGHLIGHTER || toolType == TOOL_LASER_POINTER_PEN ||
            toolType == TOOL_LASER_POINTER_HIGHLIGHTER || toolType == TOOL_HAND || toolType == TOOL_DRAW_RECT ||
-           toolType == TOOL_DRAW_ELLIPSE || toolType == TOOL_DRAW_COORDINATE_SYSTEM || toolType == TOOL_DRAW_ARROW ||
+           toolType == TOOL_DRAW_ELLIPSE || toolType == TOOL_DRAW_COSINE || toolType == TOOL_DRAW_COORDINATE_SYSTEM || toolType == TOOL_DRAW_ARROW ||
            toolType == TOOL_DRAW_DOUBLE_ARROW || toolType == TOOL_DRAW_SPLINE;
 }
 

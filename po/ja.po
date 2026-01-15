@@ -999,6 +999,10 @@ msgstr "長方形を描く"
 msgid "Draw Ellipse"
 msgstr "楕円を描く"
 
+
+msgid "Draw Cosine"
+msgstr "楕円を描く"
+
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:129
 #: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:36
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:423

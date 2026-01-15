@@ -999,6 +999,12 @@ msgstr "Vẽ Tam giác"
 msgid "Draw Ellipse"
 msgstr "Vẽ hình Elip"
 
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:127
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:35
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:422
+msgid "Draw Cosine"
+msgstr "Vẽ hình Cosine"
+
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:129
 #: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:36
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:423

@@ -24,6 +24,7 @@ auto CosineHandler::createShape(bool isAltDown, bool isShiftDown, bool isControl
 
     double width = c.x - this->startPoint.x;
     double height = c.y - this->startPoint.y;
+    int periods = 3;
 
 
     this->modShift = isShiftDown;
@@ -36,68 +37,54 @@ auto CosineHandler::createShape(bool isAltDown, bool isShiftDown, bool isControl
     }
 
     if (this->modShift) {
-        // make circle
+        // make square
         width = (this->modControl) ? std::hypot(width, height) :
                                      std::copysign(std::max(std::abs(width), std::abs(height)), width);
         height = std::copysign(width, height);
     }
 
-    double radiusX = 0;
-    double radiusY = 0;
-    double center_x = 0;
-    double center_y = 0;
+    double radiusX = 0.5 * width;
+    double radiusY = 0.5 * height;
+    double center_x = this->startPoint.x + radiusX;
+    double center_y = this->startPoint.y + radiusY;
+    double phase = 0;
+    double amplitude = 0.5 * std::abs(height);
+    double frequency = (std::abs(width) < 1e-6) ? 0 : (2.0 * M_PI * periods) / std::abs(width);
+            
+        
 
     if (!this->modControl) {
-        radiusX = 0.5 * width;
-        radiusY = 0.5 * height;
-        center_x = this->startPoint.x + radiusX;
-        center_y = this->startPoint.y + radiusY;
+        // control key not down, draw cosine
+        phase = 0;
     } else {
-        // control key down, draw centered at cursor
-        radiusX = width;
-        radiusY = height;
-        center_x = this->startPoint.x;
-        center_y = this->startPoint.y;
+        // control key down, draw sine
+        phase = -0.5 * M_PI;
     }
 
     /*
-     * Set resolution depending on the radius (heuristic)
+     * Set resolution depending on the width and height (heuristic)
      */
-    auto nbPtsPerQuadrant =
-            static_cast<unsigned int>(std::ceil(5 + 0.3 * (std::abs(radiusX) + std::abs(radiusY))));
-    const double stepAngle = M_PI_2 / nbPtsPerQuadrant;
-
+    auto nbPtsPerPeriod =
+            static_cast<unsigned int>(std::ceil(5 + 0.3 * (std::abs(amplitude) + std::abs(width/periods))));
+    const double stepPhase = (2.0 * M_PI) / nbPtsPerPeriod;
     std::pair<std::vector<Point>, Range> res;
     std::vector<Point>& shape = res.first;
 
     /*
      * This call to reserve() makes the calls to std::transform() below safe.
      * DO NOT REMOVE
-     * NB: the +1 is necessary to add a copy of the first point and close the .
+     * .
      */
-    shape.reserve(4 * nbPtsPerQuadrant + 1);
+    shape.reserve(periods * nbPtsPerPeriod + 1);
 
-    shape.emplace_back(center_x + radiusX, center_y);
-    for (unsigned int j = 1U; j < nbPtsPerQuadrant; j++) {
-        const double tgtAngle = stepAngle * j;
-        const double centerAngle = 0.25 * (std::atan2(std::abs(radiusY) * std::sin(tgtAngle), std::abs(radiusX) * std::cos(tgtAngle))) + 0.75 * tgtAngle;
-        double xp = center_x + radiusX * std::cos(centerAngle);
-        double yp = center_y + radiusY * std::sin(centerAngle);
+    shape.emplace_back(center_x - radiusX, center_y -amplitude * std::cos(phase));
+    for (unsigned int j = 1U; j <= periods * nbPtsPerPeriod; j++) {
+        const double tgtPhase = stepPhase * j;
+        double xp = center_x - radiusX + (static_cast<double>(j) / (periods * nbPtsPerPeriod)) * (2.0 * radiusX);
+        double yp = center_y - amplitude * std::cos(tgtPhase + phase);
         shape.emplace_back(xp, yp);
     }
-    shape.emplace_back(center_x, center_y + radiusY);
-
-    // The following std::transform() are only safe because no reallocations will happen (see reserve() above).
-    // Symmetry for second quadrant
-    xoj_assert(shape.capacity() >= 2 * shape.size() - 1);
-    std::transform(std::next(shape.rbegin()), shape.rend(), std::back_inserter(shape),
-                   [&](const Point& p) { return Point(2 * center_x - p.x, p.y); });
-
-    // Symmetry for the second half
-    xoj_assert(shape.capacity() >= 2 * shape.size() - 1);
-    std::transform(std::next(shape.rbegin()), shape.rend(), std::back_inserter(shape),
-                   [&](const Point& p) { return Point(p.x, 2 * center_y - p.y); });
-
+    // close the cosine shape
     Range rg(center_x + radiusX, center_y + radiusY);
     rg.addPoint(center_x - radiusX, center_y - radiusY);
     res.second = rg;

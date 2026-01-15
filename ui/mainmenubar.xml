@@ -573,6 +573,11 @@
       <attribute name="accel">&lt;Ctrl&gt;3</attribute>
      </item>
      <item>
+      <attribute name="label" translatable="yes">Draw Cosine</attribute>
+      <attribute name="action">win.tool-draw-cosine</attribute>
+      <attribute name="accel">&lt;Ctrl&gt;3</attribute>
+     </item>
+     <item>
       <attribute name="label" translatable="yes">Draw Arrow</attribute>
       <attribute name="action">win.tool-draw-arrow</attribute>
       <attribute name="accel">&lt;Ctrl&gt;4</attribute>
