@@ -42,7 +42,12 @@ void ToolbarDragDropHandler::toolbarConfigDialogClosed() {
     g_message("ToolbarDragDropHandler::toolbarConfigDialogClosed: save done");
     win->getFloatingToolbox()->hide();
 
-    this->customizeDialog.reset();
+    // Delay the destruction of the dialog to avoid a crash when delete-event is still being processed
+    g_idle_add([](gpointer data) -> gboolean {
+        auto* handler = static_cast<ToolbarDragDropHandler*>(data);
+        handler->customizeDialog.reset();
+        return G_SOURCE_REMOVE;
+    }, this);
 }
 
 void ToolbarDragDropHandler::configure() {
