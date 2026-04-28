@@ -178,7 +178,7 @@ struct ActionProperties<Action::SELECT_ALL> {
 };
 template <>
 struct ActionProperties<Action::DELETE> {
-    static constexpr const char* accelerators[] = {"Delete", nullptr};
+    static constexpr const char* accelerators[] = {"Delete", "BackSpace", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         if (!ctrl->getWindow()->getXournal()->actionDelete()) {
             ctrl->deleteSelection();
@@ -534,7 +534,7 @@ struct ActionProperties<Action::CONFIGURE_PAGE_TEMPLATE> {
 };
 template <>
 struct ActionProperties<Action::DELETE_PAGE> {
-    static constexpr const char* accelerators[] = {"<Primary><Shift>Delete", nullptr};
+    static constexpr const char* accelerators[] = {"<Primary><Shift>Delete", "<Primary><Shift>BackSpace", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->deletePage(); }
 };
 
