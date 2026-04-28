@@ -8,7 +8,7 @@
 namespace ToolbarDragDropHelper {
 
 const GdkAtom atomToolItem = gdk_atom_intern_static_string("application/xournal-ToolbarItem");
-const GtkTargetEntry dropTargetEntry = {const_cast<char*>("move-buffer"), GTK_TARGET_SAME_APP, 1};
+const GtkTargetEntry dropTargetEntry = {const_cast<char*>("application/xournal-ToolbarItem"), GTK_TARGET_SAME_APP, 1};
 
 auto gdk_context_set_icon_from_image(GdkDragContext* ctx, GtkWidget* widget) -> bool {
     auto image = GTK_IMAGE(widget);
