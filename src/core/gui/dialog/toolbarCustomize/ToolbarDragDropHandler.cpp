@@ -32,8 +32,6 @@ void ToolbarDragDropHandler::prepareToolbarsForDragAndDrop() {
 void ToolbarDragDropHandler::clearToolbarsFromDragAndDrop() { this->toolbars.clear(); }
 
 void ToolbarDragDropHandler::toolbarConfigDialogClosed() {
-    this->customizeDialog.reset();
-
     MainWindow* win = control->getWindow();
 
     this->clearToolbarsFromDragAndDrop();
@@ -41,6 +39,8 @@ void ToolbarDragDropHandler::toolbarConfigDialogClosed() {
     auto file = Util::getConfigFile(TOOLBAR_CONFIG);
     win->getToolbarModel()->save(file);
     win->getFloatingToolbox()->hide();
+
+    this->customizeDialog.reset();
 }
 
 void ToolbarDragDropHandler::configure() {

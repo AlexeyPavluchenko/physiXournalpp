@@ -138,9 +138,14 @@ ToolbarCustomizeDialog::ToolbarCustomizeDialog(GladeSearchpath* gladeSearchPath,
 
     g_signal_connect(target, "drag-data-received", G_CALLBACK(dragDataReceived), this);
 
-    g_signal_connect_swapped(builder.get("btClose"), "clicked", G_CALLBACK(gtk_window_close), window.get());
-    g_signal_connect_swapped(window.get(), "delete-event",
+    g_signal_connect_swapped(builder.get("btClose"), "clicked",
                              G_CALLBACK(+[](ToolbarDragDropHandler* h) { h->toolbarConfigDialogClosed(); }), handler);
+    g_signal_connect(window.get(), "delete-event",
+                     G_CALLBACK(+[](ToolbarDragDropHandler* h) -> gboolean {
+                         h->toolbarConfigDialogClosed();
+                         return FALSE;  // allow the window to close
+                     }),
+                     handler);
 }
 
 ToolbarCustomizeDialog::~ToolbarCustomizeDialog() = default;
