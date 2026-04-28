@@ -562,8 +562,10 @@ auto Control::firePageSelected(const PageRef& page) -> size_t {
 void Control::firePageSelected(size_t page) { DocumentHandler::firePageSelected(page); }
 
 void Control::manageToolbars() {
+    g_message("Control::manageToolbars: opening dialog");
     xoj::popup::PopupWindowWrapper<ToolbarManageDialog> dlg(
             this->gladeSearchPath, this->win->getToolbarModel(), [win = this->win]() {
+                g_message("Control::manageToolbars: dialog callback (on close)");
                 if (const auto& tbs = win->getToolbarModel()->getToolbars();
                     std::none_of(tbs.begin(), tbs.end(),
                                  [tb = win->getSelectedToolbar()](const auto& t) { return t.get() == tb; })) {
@@ -577,12 +579,14 @@ void Control::manageToolbars() {
 
                 win->updateToolbarMenu();
                 auto filepath = Util::getConfigFile(TOOLBAR_CONFIG);
+                g_message("Control::manageToolbars: saving to %s (callback)", filepath.u8string().c_str());
                 win->getToolbarModel()->save(filepath);
             });
     dlg.show(GTK_WINDOW(this->win->getWindow()));
 
     this->win->updateToolbarMenu();
     auto filepath = Util::getConfigFile(TOOLBAR_CONFIG);
+    g_message("Control::manageToolbars: saving to %s (after show)", filepath.u8string().c_str());
     this->win->getToolbarModel()->save(filepath);
 }
 

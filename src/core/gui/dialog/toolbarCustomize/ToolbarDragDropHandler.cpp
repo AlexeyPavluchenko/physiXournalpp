@@ -37,7 +37,9 @@ void ToolbarDragDropHandler::toolbarConfigDialogClosed() {
     this->clearToolbarsFromDragAndDrop();
 
     auto file = Util::getConfigFile(TOOLBAR_CONFIG);
+    g_message("ToolbarDragDropHandler::toolbarConfigDialogClosed: saving to %s", file.u8string().c_str());
     win->getToolbarModel()->save(file);
+    g_message("ToolbarDragDropHandler::toolbarConfigDialogClosed: save done");
     win->getFloatingToolbox()->hide();
 
     this->customizeDialog.reset();
