@@ -39,4 +39,6 @@ private:
 
     std::vector<std::unique_ptr<ToolbarAdapter>> toolbars;
     std::unique_ptr<ToolbarCustomizeDialog> customizeDialog;
+
+    bool alive{true};
 };

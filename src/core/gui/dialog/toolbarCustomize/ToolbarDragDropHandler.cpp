@@ -16,7 +16,10 @@
 
 ToolbarDragDropHandler::ToolbarDragDropHandler(Control* control): control(control) {}
 
-ToolbarDragDropHandler::~ToolbarDragDropHandler() = default;
+ToolbarDragDropHandler::~ToolbarDragDropHandler() {
+    this->alive = false;
+    this->customizeDialog.reset();
+}
 
 void ToolbarDragDropHandler::prepareToolbarsForDragAndDrop() {
     MainWindow* win = control->getWindow();
@@ -32,6 +35,9 @@ void ToolbarDragDropHandler::prepareToolbarsForDragAndDrop() {
 void ToolbarDragDropHandler::clearToolbarsFromDragAndDrop() { this->toolbars.clear(); }
 
 void ToolbarDragDropHandler::toolbarConfigDialogClosed() {
+    if (!this->alive) {
+        return;
+    }
     MainWindow* win = control->getWindow();
 
     this->clearToolbarsFromDragAndDrop();
@@ -41,13 +47,6 @@ void ToolbarDragDropHandler::toolbarConfigDialogClosed() {
     win->getToolbarModel()->save(file);
     g_message("ToolbarDragDropHandler::toolbarConfigDialogClosed: save done");
     win->getFloatingToolbox()->hide();
-
-    // Delay the destruction of the dialog to avoid a crash when delete-event is still being processed
-    g_idle_add([](gpointer data) -> gboolean {
-        auto* handler = static_cast<ToolbarDragDropHandler*>(data);
-        handler->customizeDialog.reset();
-        return G_SOURCE_REMOVE;
-    }, this);
 }
 
 void ToolbarDragDropHandler::configure() {
