@@ -15,8 +15,9 @@
 
 #include <gdk/gdk.h>  // for GdkEventKey
 
-#include "model/PageRef.h"  // for PageRef
-#include "model/Point.h"    // for Point
+#include "model/LineStyle.h"  // for LineStyle
+#include "model/PageRef.h"    // for PageRef
+#include "model/Point.h"      // for Point
 
 #include "InputHandler.h"            // for InputHandler
 #include "SnapToGridInputHandler.h"  // for SnapToGridInputHandler
@@ -105,4 +106,14 @@ private:
     friend class StrokeStabilizer::Active;
 
     static constexpr double MAX_WIDTH_VARIATION = 0.3;
+
+    /**
+     * @brief Line style modifiers via keyboard keys
+     * z/я -> dash, x/ч -> dot
+     */
+    LineStyle defaultLineStyle;
+    LineStyle dashLineStyle;
+    LineStyle dotLineStyle;
+    bool dashPressed = false;
+    bool dotPressed = false;
 };

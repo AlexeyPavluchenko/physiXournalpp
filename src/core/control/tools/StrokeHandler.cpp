@@ -7,7 +7,8 @@
 #include <utility>    // for move
 #include <vector>     // for vector
 
-#include <gdk/gdk.h>  // for GdkEventKey
+#include <gdk/gdk.h>         // for GdkEventKey
+#include <gdk/gdkkeysyms.h>  // for GDK_KEY_z, GDK_KEY_x, etc.
 
 #include "control/Control.h"                                // for Control
 #include "control/ToolEnums.h"                              // for DRAWING_TYPE_ST...
@@ -18,6 +19,7 @@
 #include "control/shaperecognizer/ShapeRecognizer.h"        // for ShapeRecognizer
 #include "control/tools/InputHandler.h"                     // for InputHandler::P...
 #include "control/tools/SnapToGridInputHandler.h"           // for SnapToGridInput...
+#include "gui/inputdevices/InputEvents.h"                   // for KeyEvent
 #include "gui/inputdevices/PositionInputData.h"             // for PositionInputData
 #include "model/Document.h"                                 // for Document
 #include "model/Element.h"
@@ -46,12 +48,61 @@ StrokeHandler::StrokeHandler(Control* control, const PageRef& page):
         stabilizer(StrokeStabilizer::get(control->getSettings())),
         viewPool(std::make_shared<xoj::util::DispatchPool<xoj::view::StrokeToolView>>()) {
     snappingHandler.setPageRef(page);
+
+    // Predefined line styles for keyboard modifiers
+    std::vector<double> dashDashes = {6, 3};
+    dashLineStyle.setDashes(std::move(dashDashes));
+    std::vector<double> dotDashes = {0.5, 3};
+    dotLineStyle.setDashes(std::move(dotDashes));
 }
 
 StrokeHandler::~StrokeHandler() = default;
 
-auto StrokeHandler::onKeyPressEvent(const KeyEvent&) -> bool { return false; }
-auto StrokeHandler::onKeyReleaseEvent(const KeyEvent&) -> bool { return false; }
+auto StrokeHandler::onKeyPressEvent(const KeyEvent& event) -> bool {
+    auto keyval = event.keyval;
+    if (keyval == GDK_KEY_z || keyval == GDK_KEY_Cyrillic_ya) {
+        if (!dashPressed) {
+            dashPressed = true;
+            if (stroke) {
+                stroke->setLineStyle(dashLineStyle);
+                page->fireElementChanged(stroke.get());
+            }
+        }
+        return true;
+    }
+    if (keyval == GDK_KEY_x || keyval == GDK_KEY_Cyrillic_che) {
+        if (!dotPressed) {
+            dotPressed = true;
+            if (stroke) {
+                stroke->setLineStyle(dotLineStyle);
+                page->fireElementChanged(stroke.get());
+            }
+        }
+        return true;
+    }
+    return false;
+}
+
+auto StrokeHandler::onKeyReleaseEvent(const KeyEvent& event) -> bool {
+    auto keyval = event.keyval;
+    if (keyval == GDK_KEY_z || keyval == GDK_KEY_Cyrillic_ya) {
+        dashPressed = false;
+        if (stroke) {
+            stroke->setLineStyle(dotPressed ? dotLineStyle : defaultLineStyle);
+            page->fireElementChanged(stroke.get());
+        }
+        return true;
+    }
+    if (keyval == GDK_KEY_x || keyval == GDK_KEY_Cyrillic_che) {
+        dotPressed = false;
+        if (stroke) {
+            stroke->setLineStyle(dashPressed ? dashLineStyle : defaultLineStyle);
+            page->fireElementChanged(stroke.get());
+        }
+        return true;
+    }
+    return false;
+}
 
 auto StrokeHandler::onMotionNotifyEvent(const PositionInputData& pos, double zoom) -> bool {
     if (!stroke) {
@@ -269,6 +320,16 @@ void StrokeHandler::onButtonPressEvent(const PositionInputData& pos, double zoom
     this->buttonDownPoint.y = pos.y / zoom;
 
     stroke = createStroke(this->control);
+
+    // Save the default line style from the tool
+    this->defaultLineStyle = stroke->getLineStyle();
+
+    // Apply any active keyboard modifiers
+    if (dashPressed) {
+        stroke->setLineStyle(dashLineStyle);
+    } else if (dotPressed) {
+        stroke->setLineStyle(dotLineStyle);
+    }
 
     this->hasPressure = this->stroke->getToolType().isPressureSensitive() && pos.pressure != Point::NO_PRESSURE;
 
