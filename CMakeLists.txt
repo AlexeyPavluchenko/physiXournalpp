@@ -167,6 +167,14 @@ option(ENABLE_AUDIO "Compile with Audio recording/playing support" ON)
 if (ENABLE_AUDIO)
     message(STATUS "Enable Audio support")
     pkg_check_modules(ExternalAudioModules REQUIRED IMPORTED_TARGET "portaudiocpp >= 12;sndfile >= 1.0.25")
+    # pkg_check_modules with IMPORTED_TARGET does not handle macOS frameworks correctly:
+    # framework names from .pc files end up as -lAudioToolbox etc. in _LIBRARIES.
+    # We add -framework flags via target_link_options to work around this.
+    if(APPLE)
+        set_target_properties(PkgConfig::ExternalAudioModules PROPERTIES
+            INTERFACE_LINK_OPTIONS "-Wl,-framework,CoreAudio;-Wl,-framework,AudioToolbox;-Wl,-framework,AudioUnit;-Wl,-framework,CoreFoundation;-Wl,-framework,CoreServices"
+        )
+    endif()
 else ()
     message(STATUS "Disable Audio support")
 endif ()
@@ -372,23 +380,23 @@ install(DIRECTORY palettes
         COMPONENT xournalpp
         )
 
+# Install icons (all platforms)
+install(FILES ui/pixmaps/com.github.xournalpp.xournalpp.svg
+        DESTINATION share/icons/hicolor/scalable/apps)
+install(FILES ui/pixmaps/application-x-xopp.svg
+        DESTINATION share/icons/hicolor/scalable/mimetypes/)
+install(FILES ui/pixmaps/application-x-xopt.svg
+        DESTINATION share/icons/hicolor/scalable/mimetypes/)
+install(FILES ui/pixmaps/application-x-xojpp.svg
+        DESTINATION share/icons/hicolor/scalable/mimetypes/)
+install(FILES ui/pixmaps/gnome-mime-application-x-xopp.svg
+        DESTINATION share/icons/hicolor/scalable/mimetypes/)
+install(FILES ui/pixmaps/gnome-mime-application-x-xopt.svg
+        DESTINATION share/icons/hicolor/scalable/mimetypes/)
+
 # Install desktop shortcuts for Linux
 if (${INSTALL_DESKTOP_FILES})
     message("Installing desktop files")
-
-    # Install icons
-    install(FILES ui/pixmaps/com.github.xournalpp.xournalpp.svg
-            DESTINATION share/icons/hicolor/scalable/apps)
-    install(FILES ui/pixmaps/application-x-xopp.svg
-            DESTINATION share/icons/hicolor/scalable/mimetypes/)
-    install(FILES ui/pixmaps/application-x-xopt.svg
-            DESTINATION share/icons/hicolor/scalable/mimetypes/)
-    install(FILES ui/pixmaps/application-x-xojpp.svg
-            DESTINATION share/icons/hicolor/scalable/mimetypes/)
-    install(FILES ui/pixmaps/gnome-mime-application-x-xopp.svg
-            DESTINATION share/icons/hicolor/scalable/mimetypes/)
-    install(FILES ui/pixmaps/gnome-mime-application-x-xopt.svg
-            DESTINATION share/icons/hicolor/scalable/mimetypes/)
     install(FILES ${CMAKE_BINARY_DIR}/generated/com.github.xournalpp.xournalpp.xml
             DESTINATION share/mime/packages)
     install(FILES desktop/com.github.xournalpp.xournalpp.thumbnailer

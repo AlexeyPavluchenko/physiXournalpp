@@ -33,6 +33,7 @@ static auto makeEntries(IconNameHelper& icons, const ActionDatabase& db)
     auto& entries = *res;
     entries[Type::RECTANGLE] = Entry(_("Draw Rectangle"), icons.iconName("draw-rect"), db, Action::TOOL_DRAW_RECTANGLE);
     entries[Type::ELLIPSE] = Entry(_("Draw Ellipse"), icons.iconName("draw-ellipse"), db, Action::TOOL_DRAW_ELLIPSE);
+    entries[Type::COSINE] = Entry(_("Draw Cosine"), icons.iconName("draw-cosine"), db, Action::TOOL_DRAW_COSINE);
     entries[Type::ARROW] = Entry(_("Draw Arrow"), icons.iconName("draw-arrow"), db, Action::TOOL_DRAW_ARROW);
     entries[Type::DOUBLE_ARROW] =
             Entry(_("Draw Double Arrow"), icons.iconName("draw-double-arrow"), db, Action::TOOL_DRAW_DOUBLE_ARROW);
@@ -130,6 +131,8 @@ auto DrawingTypeComboToolButton::createItem(bool horizontal) -> xoj::util::Widge
                      xoj::util::wrap_for_g_callback_v<Data::setProminentIconCallback<Type::RECTANGLE>>, data.get());
     g_signal_connect((*entries)[Type::ELLIPSE].gAction.get(), "notify::state",
                      xoj::util::wrap_for_g_callback_v<Data::setProminentIconCallback<Type::ELLIPSE>>, data.get());
+    g_signal_connect((*entries)[Type::COSINE].gAction.get(), "notify::state",
+                     xoj::util::wrap_for_g_callback_v<Data::setProminentIconCallback<Type::COSINE>>, data.get());
     g_signal_connect((*entries)[Type::ARROW].gAction.get(), "notify::state",
                      xoj::util::wrap_for_g_callback_v<Data::setProminentIconCallback<Type::ARROW>>, data.get());
     g_signal_connect((*entries)[Type::DOUBLE_ARROW].gAction.get(), "notify::state",
@@ -152,6 +155,7 @@ auto DrawingTypeComboToolButton::createItem(bool horizontal) -> xoj::util::Widge
                 Data* data = static_cast<Data*>(d);
                 g_signal_handlers_disconnect_by_data((*data->entries)[Type::RECTANGLE].gAction.get(), d);
                 g_signal_handlers_disconnect_by_data((*data->entries)[Type::ELLIPSE].gAction.get(), d);
+                g_signal_handlers_disconnect_by_data((*data->entries)[Type::COSINE].gAction.get(), d);
                 g_signal_handlers_disconnect_by_data((*data->entries)[Type::ARROW].gAction.get(), d);
                 g_signal_handlers_disconnect_by_data((*data->entries)[Type::DOUBLE_ARROW].gAction.get(), d);
                 g_signal_handlers_disconnect_by_data((*data->entries)[Type::LINE].gAction.get(), d);

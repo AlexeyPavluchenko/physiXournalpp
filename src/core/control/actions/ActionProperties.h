@@ -75,6 +75,7 @@ struct has_state<a, std::void_t<typename ActionProperties<a>::state_type>>: std:
 /** File Menu **/
 template <>
 struct ActionProperties<Action::NEW_FILE> {
+    static constexpr const char* accelerators[] = {"<Primary>n", "<Primary>Cyrillic_te", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         ctrl->clearSelectionEndText();
         ctrl->newFile();
@@ -83,6 +84,7 @@ struct ActionProperties<Action::NEW_FILE> {
 
 template <>
 struct ActionProperties<Action::OPEN> {
+    static constexpr const char* accelerators[] = {"<Primary>o", "<Primary>Cyrillic_shcha", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->askToOpenFile(); }
 };
 
@@ -96,11 +98,13 @@ struct ActionProperties<Action::ANNOTATE_PDF> {
 
 template <>
 struct ActionProperties<Action::SAVE> {
+    static constexpr const char* accelerators[] = {"<Primary>s", "<Primary>Cyrillic_yeru", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->save(); }
 };
 
 template <>
 struct ActionProperties<Action::SAVE_AS> {
+    static constexpr const char* accelerators[] = {"<Primary><Shift>s", "<Primary><Shift>Cyrillic_yeru", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->saveAs(); }
 };
 
@@ -111,20 +115,18 @@ struct ActionProperties<Action::EXPORT_AS_PDF> {
 
 template <>
 struct ActionProperties<Action::EXPORT_AS> {
+    static constexpr const char* accelerators[] = {"<Primary>e", "<Primary>Cyrillic_u", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->exportAs(); }
 };
 template <>
 struct ActionProperties<Action::PRINT> {
+    static constexpr const char* accelerators[] = {"<Primary>p", "<Primary>Cyrillic_ze", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->print(); }
 };
 template <>
 struct ActionProperties<Action::QUIT> {
     using app_namespace = std::true_type;
-#ifdef __APPLE__
-    static constexpr const char* accelerators[] = {"<Meta>Q", nullptr};
-#else
-    static constexpr const char* accelerators[] = {"<Ctrl>Q", nullptr};
-#endif
+    static constexpr const char* accelerators[] = {"<Primary>Q", "<Primary>Cyrillic_shorti", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->quit(); }
 };
 
@@ -132,21 +134,13 @@ struct ActionProperties<Action::QUIT> {
 /** Edit Menu **/
 template <>
 struct ActionProperties<Action::UNDO> {
-#ifdef __APPLE__
-    static constexpr const char* accelerators[] = {"<Meta>Z", nullptr};
-#else
-    static constexpr const char* accelerators[] = {"<Ctrl>Z", nullptr};
-#endif
+    static constexpr const char* accelerators[] = {"<Primary>Z", "<Primary>Cyrillic_ya", nullptr};
     static bool initiallyEnabled(Control* ctrl) { return ctrl->undoRedo->canUndo(); }
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { UndoRedoController::undo(ctrl); }
 };
 template <>
 struct ActionProperties<Action::REDO> {
-#ifdef __APPLE__
-    static constexpr const char* accelerators[] = {"<Meta><Shift>Z", "<Meta>Y", nullptr};
-#else
-    static constexpr const char* accelerators[] = {"<Ctrl><Shift>Z", "<Ctrl>Y", nullptr};
-#endif
+    static constexpr const char* accelerators[] = {"<Primary><Shift>Z", "<Primary>Y", "<Primary><Shift>Cyrillic_ya", "<Primary>Cyrillic_en", nullptr};
     static bool initiallyEnabled(Control* ctrl) { return ctrl->undoRedo->canRedo(); }
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         ctrl->clearSelectionEndText();
@@ -155,33 +149,22 @@ struct ActionProperties<Action::REDO> {
 };
 template <>
 struct ActionProperties<Action::CUT> {
-#ifdef __APPLE__
-    static constexpr const char* accelerators[] = {"<Meta>X", "Cut", nullptr};
-#else
-    static constexpr const char* accelerators[] = {"<Ctrl>X", "Cut", nullptr};
-#endif
+    static constexpr const char* accelerators[] = {"<Primary>X", "<Primary>Cyrillic_che", "Cut", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->cut(); }
 };
 template <>
 struct ActionProperties<Action::COPY> {
-#ifdef __APPLE__
-    static constexpr const char* accelerators[] = {"<Meta>C", "Copy", nullptr};
-#else
-    static constexpr const char* accelerators[] = {"<Ctrl>C", "Copy", nullptr};
-#endif
+    static constexpr const char* accelerators[] = {"<Primary>C", "<Primary>Cyrillic_es", "Copy", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->copy(); }
 };
 template <>
 struct ActionProperties<Action::PASTE> {
-#ifdef __APPLE__
-    static constexpr const char* accelerators[] = {"<Meta>V", "Paste", nullptr};
-#else
-    static constexpr const char* accelerators[] = {"<Ctrl>V", "Paste", nullptr};
-#endif
+    static constexpr const char* accelerators[] = {"<Primary>V", "<Primary>Cyrillic_em", "Paste", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->paste(); }
 };
 template <>
 struct ActionProperties<Action::SEARCH> {
+    static constexpr const char* accelerators[] = {"<Primary>f", "<Primary>Cyrillic_a", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         ctrl->clearSelectionEndText();
         ctrl->getSearchBar()->showSearchBar(true);
@@ -190,10 +173,12 @@ struct ActionProperties<Action::SEARCH> {
 
 template <>
 struct ActionProperties<Action::SELECT_ALL> {
+    static constexpr const char* accelerators[] = {"<Primary>a", "<Primary>Cyrillic_ef", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->selectAllOnPage(); }
 };
 template <>
 struct ActionProperties<Action::DELETE> {
+    static constexpr const char* accelerators[] = {"Delete", "BackSpace", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         if (!ctrl->getWindow()->getXournal()->actionDelete()) {
             ctrl->deleteSelection();
@@ -286,6 +271,7 @@ struct ActionProperties<Action::PAIRED_PAGES_OFFSET> {
 template <>
 struct ActionProperties<Action::PRESENTATION_MODE> {
     using state_type = bool;
+    static constexpr const char* accelerators[] = {"F5", nullptr};
     static state_type initialState(Control* ctrl) { return ctrl->getSettings()->isPresentationMode(); }
     static void callback(GSimpleAction* ga, GVariant* p, Control* ctrl) {
         g_simple_action_set_state(ga, p);
@@ -297,6 +283,7 @@ struct ActionProperties<Action::PRESENTATION_MODE> {
 template <>
 struct ActionProperties<Action::FULLSCREEN> {
     using state_type = bool;
+    static constexpr const char* accelerators[] = {"F11", nullptr};
     static constexpr state_type initialState(Control*) { return false; }
     static void callback(GSimpleAction* ga, GVariant* p, Control* ctrl) {
         g_simple_action_set_state(ga, p);
@@ -308,6 +295,7 @@ struct ActionProperties<Action::FULLSCREEN> {
 template <>
 struct ActionProperties<Action::SHOW_SIDEBAR> {
     using state_type = bool;
+    static constexpr const char* accelerators[] = {"F12", nullptr};
     static state_type initialState(Control* ctrl) { return ctrl->getSettings()->isSidebarVisible(); }
     static void callback(GSimpleAction*, GVariant* p, Control* ctrl) { ctrl->setShowSidebar(g_variant_get_boolean(p)); }
 };
@@ -315,6 +303,7 @@ struct ActionProperties<Action::SHOW_SIDEBAR> {
 template <>
 struct ActionProperties<Action::SHOW_TOOLBAR> {
     using state_type = bool;
+    static constexpr const char* accelerators[] = {"F9", nullptr};
     static state_type initialState(Control* ctrl) { return ctrl->getSettings()->isToolbarVisible(); }
     static void callback(GSimpleAction*, GVariant* p, Control* ctrl) { ctrl->setShowToolbar(g_variant_get_boolean(p)); }
 };
@@ -386,6 +375,7 @@ struct ActionProperties<Action::CUSTOMIZE_TOOLBAR> {
 template <>
 struct ActionProperties<Action::SHOW_MENUBAR> {
     using state_type = bool;
+    static constexpr const char* accelerators[] = {"F10", nullptr};
     static state_type initialState(Control* ctrl) { return ctrl->getSettings()->isMenubarVisible(); }
     static void callback(GSimpleAction*, GVariant* p, Control* ctrl) { ctrl->setShowMenubar(g_variant_get_boolean(p)); }
 };
@@ -397,11 +387,7 @@ struct ActionProperties<Action::SHOW_MENUBAR> {
  */
 template <>
 struct ActionProperties<Action::ZOOM_IN> {
-#ifdef __APPLE__
-    static constexpr const char* accelerators[] = {"<Meta>plus", "<Meta>KP_Add", "<Meta>equal", nullptr};
-#else
-    static constexpr const char* accelerators[] = {"<Ctrl>plus", "<Ctrl>KP_Add", "<Ctrl>equal", nullptr};
-#endif
+    static constexpr const char* accelerators[] = {"<Primary>plus", "<Primary>KP_Add", "<Primary>equal", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         Util::execInUiThread([zoom = ctrl->getZoomControl()]() { zoom->zoomOneStep(ZOOM_IN); });
     }
@@ -409,11 +395,7 @@ struct ActionProperties<Action::ZOOM_IN> {
 
 template <>
 struct ActionProperties<Action::ZOOM_OUT> {
-#ifdef __APPLE__
-    static constexpr const char* accelerators[] = {"<Meta>minus", "<Meta>KP_Subtract", nullptr};
-#else
-    static constexpr const char* accelerators[] = {"<Ctrl>minus", "<Ctrl>KP_Subtract", nullptr};
-#endif
+    static constexpr const char* accelerators[] = {"<Primary>minus", "<Primary>KP_Subtract", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         Util::execInUiThread([zoom = ctrl->getZoomControl()]() { zoom->zoomOneStep(ZOOM_OUT); });
     }
@@ -464,23 +446,28 @@ struct ActionProperties<Action::ZOOM> {
 /** Navigation menu **/
 template <>
 struct ActionProperties<Action::GOTO_FIRST> {
+    static constexpr const char* accelerators[] = {"<Primary>Home", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->getScrollHandler()->scrollToPage(0); }
 };
 template <>
 struct ActionProperties<Action::GOTO_PREVIOUS> {
+    static constexpr const char* accelerators[] = {"<Primary>Page_Up", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->getScrollHandler()->goToPreviousPage(); }
 };
 
 template <>
 struct ActionProperties<Action::GOTO_PAGE> {
+    static constexpr const char* accelerators[] = {"<Primary>g", "<Primary>Cyrillic_pe", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->gotoPage(); }
 };
 template <>
 struct ActionProperties<Action::GOTO_NEXT> {
+    static constexpr const char* accelerators[] = {"<Primary>Page_Down", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->getScrollHandler()->goToNextPage(); }
 };
 template <>
 struct ActionProperties<Action::GOTO_LAST> {
+    static constexpr const char* accelerators[] = {"<Primary>End", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         ctrl->getScrollHandler()->scrollToPage(ctrl->getDocument()->getPageCount() - 1);
     }
@@ -488,6 +475,7 @@ struct ActionProperties<Action::GOTO_LAST> {
 
 template <>
 struct ActionProperties<Action::GOTO_NEXT_ANNOTATED_PAGE> {
+    static constexpr const char* accelerators[] = {"<Primary><Shift>Page_Down", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         ctrl->getScrollHandler()->scrollToAnnotatedPage(true);
     }
@@ -495,6 +483,7 @@ struct ActionProperties<Action::GOTO_NEXT_ANNOTATED_PAGE> {
 
 template <>
 struct ActionProperties<Action::GOTO_PREVIOUS_ANNOTATED_PAGE> {
+    static constexpr const char* accelerators[] = {"<Primary><Shift>Page_Up", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         ctrl->getScrollHandler()->scrollToAnnotatedPage(false);
     }
@@ -509,6 +498,7 @@ struct ActionProperties<Action::NEW_PAGE_BEFORE> {
 
 template <>
 struct ActionProperties<Action::NEW_PAGE_AFTER> {
+    static constexpr const char* accelerators[] = {"<Primary>d", "<Primary>Cyrillic_ve", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         ctrl->insertNewPage(ctrl->getCurrentPageNo() + 1);
     }
@@ -544,6 +534,7 @@ struct ActionProperties<Action::CONFIGURE_PAGE_TEMPLATE> {
 };
 template <>
 struct ActionProperties<Action::DELETE_PAGE> {
+    static constexpr const char* accelerators[] = {"<Primary><Shift>Delete", "<Primary><Shift>BackSpace", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->deletePage(); }
 };
 
@@ -600,6 +591,7 @@ struct ActionPropDrawingTypes {
         actionDB->setActionState(Action::TOOL_DRAW_COORDINATE_SYSTEM, false);
         actionDB->setActionState(Action::TOOL_DRAW_LINE, false);
         actionDB->setActionState(Action::TOOL_DRAW_SPLINE, false);
+        actionDB->setActionState(Action::TOOL_DRAW_COSINE, false);
 
         g_simple_action_set_state(ga, p);
         bool enabled = g_variant_get_boolean(p);
@@ -614,6 +606,8 @@ template <>
 struct ActionProperties<Action::TOOL_DRAW_RECTANGLE>: ActionPropDrawingTypes<DRAWING_TYPE_RECTANGLE> {};
 template <>
 struct ActionProperties<Action::TOOL_DRAW_ELLIPSE>: ActionPropDrawingTypes<DRAWING_TYPE_ELLIPSE> {};
+template <>
+struct ActionProperties<Action::TOOL_DRAW_COSINE>: ActionPropDrawingTypes<DRAWING_TYPE_COSINE> {};
 template <>
 struct ActionProperties<Action::TOOL_DRAW_ARROW>: ActionPropDrawingTypes<DRAWING_TYPE_ARROW> {};
 template <>
@@ -997,6 +991,7 @@ struct ActionProperties<Action::LAYER_HIDE_ALL> {
 
 template <>
 struct ActionProperties<Action::LAYER_NEW_ABOVE_CURRENT> {
+    static constexpr const char* accelerators[] = {"<Primary>l", "<Primary>Cyrillic_de", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->getLayerController()->addNewLayer(false); }
 };
 
@@ -1026,11 +1021,13 @@ struct ActionProperties<Action::LAYER_MOVE_DOWN> {
 
 template <>
 struct ActionProperties<Action::LAYER_DELETE> {
+    static constexpr const char* accelerators[] = {"<Primary><Shift>l", "<Primary><Shift>Cyrillic_de", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) { ctrl->getLayerController()->deleteCurrentLayer(); }
 };
 
 template <>
 struct ActionProperties<Action::LAYER_MERGE_DOWN> {
+    static constexpr const char* accelerators[] = {"<Primary>m", "<Primary>Cyrillic_softsign", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         ctrl->getLayerController()->mergeCurrentLayerDown();
     }
@@ -1038,6 +1035,7 @@ struct ActionProperties<Action::LAYER_MERGE_DOWN> {
 
 template <>
 struct ActionProperties<Action::LAYER_RENAME> {
+    static constexpr const char* accelerators[] = {"<Primary>r", "<Primary>Cyrillic_ka", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         xoj::popup::PopupWindowWrapper<RenameLayerDialog> dialog(
                 ctrl->getGladeSearchPath(), ctrl->getUndoRedoHandler(), ctrl->getLayerController(),
@@ -1048,6 +1046,7 @@ struct ActionProperties<Action::LAYER_RENAME> {
 
 template <>
 struct ActionProperties<Action::LAYER_GOTO_NEXT> {
+    static constexpr const char* accelerators[] = {"<Shift>Page_Up", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         PageRef p = ctrl->getCurrentPage();
         auto layer = p->getSelectedLayerId();
@@ -1058,6 +1057,7 @@ struct ActionProperties<Action::LAYER_GOTO_NEXT> {
 };
 template <>
 struct ActionProperties<Action::LAYER_GOTO_PREVIOUS> {
+    static constexpr const char* accelerators[] = {"<Shift>Page_Down", nullptr};
     static void callback(GSimpleAction*, GVariant*, Control* ctrl) {
         PageRef p = ctrl->getCurrentPage();
         auto layer = p->getSelectedLayerId();

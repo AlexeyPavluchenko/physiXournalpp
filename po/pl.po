@@ -998,6 +998,13 @@ msgstr "Rysuj prostokąt"
 msgid "Draw Ellipse"
 msgstr "Narysuj elipsę"
 
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:127
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:35
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:422
+msgid "Draw Cosine"
+msgstr "Narysuj cosine"
+
+
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:129
 #: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:36
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:423

@@ -991,6 +991,12 @@ msgstr "Teken Reghoek"
 msgid "Draw Ellipse"
 msgstr "Teken Ellips"
 
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:128
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:35
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:422
+msgid "Draw Cosine"
+msgstr "Teken Cosine"
+
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:129
 #: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:36
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:423

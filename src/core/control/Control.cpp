@@ -562,8 +562,10 @@ auto Control::firePageSelected(const PageRef& page) -> size_t {
 void Control::firePageSelected(size_t page) { DocumentHandler::firePageSelected(page); }
 
 void Control::manageToolbars() {
+    g_message("Control::manageToolbars: opening dialog");
     xoj::popup::PopupWindowWrapper<ToolbarManageDialog> dlg(
             this->gladeSearchPath, this->win->getToolbarModel(), [win = this->win]() {
+                g_message("Control::manageToolbars: dialog callback (on close)");
                 if (const auto& tbs = win->getToolbarModel()->getToolbars();
                     std::none_of(tbs.begin(), tbs.end(),
                                  [tb = win->getSelectedToolbar()](const auto& t) { return t.get() == tb; })) {
@@ -577,12 +579,14 @@ void Control::manageToolbars() {
 
                 win->updateToolbarMenu();
                 auto filepath = Util::getConfigFile(TOOLBAR_CONFIG);
+                g_message("Control::manageToolbars: saving to %s (callback)", filepath.u8string().c_str());
                 win->getToolbarModel()->save(filepath);
             });
     dlg.show(GTK_WINDOW(this->win->getWindow()));
 
     this->win->updateToolbarMenu();
     auto filepath = Util::getConfigFile(TOOLBAR_CONFIG);
+    g_message("Control::manageToolbars: saving to %s (after show)", filepath.u8string().c_str());
     this->win->getToolbarModel()->save(filepath);
 }
 
@@ -1180,6 +1184,7 @@ void Control::toolChanged() {
     this->actionDB->enableAction(Action::TOOL_DRAW_LINE, toolHandler->hasCapability(TOOL_CAP_RULER));
     this->actionDB->enableAction(Action::TOOL_DRAW_RECTANGLE, toolHandler->hasCapability(TOOL_CAP_RECTANGLE));
     this->actionDB->enableAction(Action::TOOL_DRAW_ELLIPSE, toolHandler->hasCapability(TOOL_CAP_ELLIPSE));
+    this->actionDB->enableAction(Action::TOOL_DRAW_COSINE, toolHandler->hasCapability(TOOL_CAP_COSINE));
     this->actionDB->enableAction(Action::TOOL_DRAW_ARROW, toolHandler->hasCapability(TOOL_CAP_ARROW));
     this->actionDB->enableAction(Action::TOOL_DRAW_DOUBLE_ARROW, toolHandler->hasCapability(TOOL_CAP_DOUBLE_ARROW));
     this->actionDB->enableAction(Action::TOOL_DRAW_COORDINATE_SYSTEM, toolHandler->hasCapability(TOOL_CAP_ARROW));
@@ -1190,6 +1195,7 @@ void Control::toolChanged() {
     this->actionDB->setActionState(Action::TOOL_DRAW_LINE, dt == DRAWING_TYPE_LINE);
     this->actionDB->setActionState(Action::TOOL_DRAW_RECTANGLE, dt == DRAWING_TYPE_RECTANGLE);
     this->actionDB->setActionState(Action::TOOL_DRAW_ELLIPSE, dt == DRAWING_TYPE_ELLIPSE);
+    this->actionDB->setActionState(Action::TOOL_DRAW_COSINE, dt == DRAWING_TYPE_COSINE);
     this->actionDB->setActionState(Action::TOOL_DRAW_ARROW, dt == DRAWING_TYPE_ARROW);
     this->actionDB->setActionState(Action::TOOL_DRAW_DOUBLE_ARROW, dt == DRAWING_TYPE_DOUBLE_ARROW);
     this->actionDB->setActionState(Action::TOOL_DRAW_COORDINATE_SYSTEM, dt == DRAWING_TYPE_COORDINATE_SYSTEM);

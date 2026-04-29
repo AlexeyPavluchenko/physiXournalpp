@@ -140,22 +140,32 @@ void ToolbarModel::save(fs::path const& filepath) const {
 
     g_key_file_set_comment(config, nullptr, nullptr, TOOLBAR_INI_HEADER, nullptr);
 
+    int savedCount = 0;
     for (const auto& data: this->toolbars) {
         if (!data->isPredefined()) {
             data->saveToKeyFile(config);
+            savedCount++;
+            g_message("ToolbarModel::save: saving toolbar '%s' (id=%s)", data->getName().c_str(), data->getId().c_str());
+        } else {
+            g_message("ToolbarModel::save: skipping predefined toolbar '%s' (id=%s)", data->getName().c_str(), data->getId().c_str());
         }
     }
 
     gsize len = 0;
     char* data = g_key_file_to_data(config, &len, nullptr);
 
+    g_message("ToolbarModel::save: saved %d toolbars, total data size=%zu", savedCount, len);
+
     g_key_file_free(config);
     config = nullptr;
 
     GError* error = nullptr;
     if (!g_file_set_contents(char_cast(filepath.u8string().c_str()), data, as_signed(len), &error)) {
+        g_message("ToolbarModel::save: ERROR writing file: %s", error->message);
         XojMsgBox::showErrorToUser(nullptr, error->message);
         g_error_free(error);
+    } else {
+        g_message("ToolbarModel::save: successfully wrote to %s", filepath.u8string().c_str());
     }
 
     g_free(data);

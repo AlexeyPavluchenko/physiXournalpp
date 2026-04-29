@@ -995,6 +995,12 @@ msgstr "Desegni ortangulon"
 msgid "Draw Ellipse"
 msgstr "Desegni elipson"
 
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:127
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:35
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:422
+msgid "Draw Cosine"
+msgstr "Desegni cosine"
+
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:129
 #: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:36
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:423

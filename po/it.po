@@ -1002,6 +1002,12 @@ msgstr "Disegna Rettangolo"
 msgid "Draw Ellipse"
 msgstr "Disegna ellisse"
 
+#: ../src/core/gui/dialog/ButtonConfigGui.cpp:127
+#: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:35
+#: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:422
+msgid "Draw Cosine"
+msgstr "Disegna cosine"
+
 #: ../src/core/gui/dialog/ButtonConfigGui.cpp:129
 #: ../src/core/gui/toolbarMenubar/DrawingTypeComboToolButton.cpp:36
 #: ../src/core/gui/toolbarMenubar/ToolMenuHandler.cpp:423
