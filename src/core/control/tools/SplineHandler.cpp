@@ -36,6 +36,12 @@ SplineHandler::SplineHandler(Control* control, const PageRef& page):
     snappingHandler.setPageRef(page);
     this->control->getZoomControl()->addZoomListener(this);
     this->knotsAttractionRadius = KNOTS_ATTRACTION_RADIUS_IN_PIXELS / this->control->getZoomControl()->getZoom();
+
+    // Predefined line styles for keyboard modifiers
+    std::vector<double> dashDashes = {6, 3};
+    dashLineStyle.setDashes(std::move(dashDashes));
+    std::vector<double> dotDashes = {0.5, 3};
+    dotLineStyle.setDashes(std::move(dotDashes));
 }
 
 SplineHandler::~SplineHandler() { this->control->getZoomControl()->removeZoomListener(this); }
@@ -120,6 +126,32 @@ auto SplineHandler::onKeyPressEvent(const KeyEvent& event) -> bool {
             rg = rg.unite(this->computeLastSegmentRepaintRange());
             break;
         }
+        case GDK_KEY_z:
+        case GDK_KEY_Z:
+        case GDK_KEY_Cyrillic_ya:
+        case GDK_KEY_Cyrillic_YA: {
+            if (!dashPressed) {
+                dashPressed = true;
+                if (stroke) {
+                    stroke->setLineStyle(dashLineStyle);
+                    viewPool->dispatch(xoj::view::SplineToolView::LINE_STYLE_CHANGE_REQUEST, dashLineStyle);
+                }
+            }
+            break;
+        }
+        case GDK_KEY_x:
+        case GDK_KEY_X:
+        case GDK_KEY_Cyrillic_che:
+        case GDK_KEY_Cyrillic_CHE: {
+            if (!dotPressed) {
+                dotPressed = true;
+                if (stroke) {
+                    stroke->setLineStyle(dotLineStyle);
+                    viewPool->dispatch(xoj::view::SplineToolView::LINE_STYLE_CHANGE_REQUEST, dotLineStyle);
+                }
+            }
+            break;
+        }
         default:
             return false;
     }
@@ -133,7 +165,44 @@ bool SplineHandler::onKeyReleaseEvent(const KeyEvent& event) {
         this->finalizeSpline();
         return true;
     }
-    return false;
+
+    if (!stroke) {
+        return false;
+    }
+
+    Range rg = this->computeLastSegmentRepaintRange();
+
+    switch (event.keyval) {
+        case GDK_KEY_z:
+        case GDK_KEY_Z:
+        case GDK_KEY_Cyrillic_ya:
+        case GDK_KEY_Cyrillic_YA: {
+            dashPressed = false;
+            LineStyle newStyle = dotPressed ? dotLineStyle : defaultLineStyle;
+            if (stroke) {
+                stroke->setLineStyle(newStyle);
+                viewPool->dispatch(xoj::view::SplineToolView::LINE_STYLE_CHANGE_REQUEST, newStyle);
+            }
+            break;
+        }
+        case GDK_KEY_x:
+        case GDK_KEY_X:
+        case GDK_KEY_Cyrillic_che:
+        case GDK_KEY_Cyrillic_CHE: {
+            dotPressed = false;
+            LineStyle newStyle = dashPressed ? dashLineStyle : defaultLineStyle;
+            if (stroke) {
+                stroke->setLineStyle(newStyle);
+                viewPool->dispatch(xoj::view::SplineToolView::LINE_STYLE_CHANGE_REQUEST, newStyle);
+            }
+            break;
+        }
+        default:
+            return false;
+    }
+
+    this->viewPool->dispatch(xoj::view::SplineToolView::FLAG_DIRTY_REGION, rg);
+    return true;
 }
 
 auto SplineHandler::onMotionNotifyEvent(const PositionInputData& pos, double zoom) -> bool {
@@ -217,6 +286,16 @@ void SplineHandler::onButtonPressEvent(const PositionInputData& pos, double zoom
         this->buttonDownPoint = Point(pos.x / zoom, pos.y / zoom);
         this->currPoint = snappingHandler.snapToGrid(this->buttonDownPoint, pos.isAltDown());
         this->addKnot(this->currPoint);
+
+        // Save the default line style from the tool
+        this->defaultLineStyle = stroke->getLineStyle();
+
+        // Apply any active keyboard modifiers
+        if (dashPressed) {
+            stroke->setLineStyle(dashLineStyle);
+        } else if (dotPressed) {
+            stroke->setLineStyle(dotLineStyle);
+        }
     } else {
         xoj_assert(!this->knots.empty());
         this->buttonDownPoint = Point(pos.x / zoom, pos.y / zoom);

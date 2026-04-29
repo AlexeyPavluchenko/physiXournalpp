@@ -52,6 +52,10 @@ public:
     } STROKE_REPLACEMENT_REQUEST = {};
     virtual void on(StrokeReplacementRequest, const Stroke& newStroke);
 
+    static constexpr struct LineStyleChangeRequest {
+    } LINE_STYLE_CHANGE_REQUEST = {};
+    void on(LineStyleChangeRequest, const LineStyle& newLineStyle);
+
     static constexpr struct CancellationRequest {
     } CANCELLATION_REQUEST = {};
     void deleteOn(CancellationRequest, const Range& rg);

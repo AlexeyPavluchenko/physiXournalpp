@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "control/tools/BaseShapeHandler.h"
+#include "model/LineStyle.h"
 #include "util/raii/CairoWrappers.h"
 #include "view/Repaintable.h"
 #include "view/StrokeViewHelper.h"
@@ -38,6 +39,16 @@ bool ShapeToolView::isViewOf(const OverlayBase* overlay) const { return overlay 
 void ShapeToolView::on(ShapeToolView::FlagDirtyRegionRequest, const Range& rg) {
     maskWipeExtent = maskWipeExtent.unite(rg);
     this->parent->flagDirtyRegion(rg);
+}
+
+void ShapeToolView::on(ShapeToolView::LineStyleChangeRequest, const LineStyle& style) {
+    this->lineStyle = style;
+    // Trigger a redraw so the new line style takes effect
+    if (this->mask.isInitialized()) {
+        this->mask.wipe();
+        // Request a repaint of the entire area that was previously drawn
+        this->parent->flagDirtyRegion(maskWipeExtent);
+    }
 }
 
 void ShapeToolView::deleteOn(ShapeToolView::FinalizationRequest, const Range& rg) {

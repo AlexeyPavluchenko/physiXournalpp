@@ -18,9 +18,10 @@
 #include <gdk/gdk.h>  // for GdkEventKey
 
 #include "control/zoom/ZoomListener.h"
-#include "model/PageRef.h"   // for PageRef
-#include "model/Point.h"     // for Point
-#include "util/Range.h"      // for Range
+#include "model/LineStyle.h"  // for LineStyle
+#include "model/PageRef.h"    // for PageRef
+#include "model/Point.h"      // for Point
+#include "util/Range.h"       // for Range
 
 #include "InputHandler.h"            // for InputHandler
 #include "SnapToGridInputHandler.h"  // for SnapToGridInputHandler
@@ -124,6 +125,13 @@ private:
     SnapToGridInputHandler snappingHandler;
 
     std::shared_ptr<xoj::util::DispatchPool<xoj::view::SplineToolView>> viewPool;
+
+    // Keyboard modifiers for line style (z = dash, x = dot)
+    bool dashPressed = false;
+    bool dotPressed = false;
+    LineStyle dashLineStyle;
+    LineStyle dotLineStyle;
+    LineStyle defaultLineStyle;
 
     static constexpr double KNOTS_ATTRACTION_RADIUS_IN_PIXELS = 10.0;  // for circling the spline's knots
 };

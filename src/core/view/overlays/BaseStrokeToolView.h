@@ -45,7 +45,7 @@ protected:
      */
     const cairo_operator_t cairoOp;
     const Color strokeColor;
-    const LineStyle lineStyle;
+    LineStyle lineStyle;
     double strokeWidth;
 };
 };  // namespace xoj::view

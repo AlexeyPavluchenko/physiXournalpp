@@ -3,7 +3,7 @@
 #include <cmath>   // for pow, NAN
 #include <memory>  // for make_unique, __share...
 
-#include <gdk/gdkkeysyms.h>  // for GDK_KEY_Alt_L, GDK_K...
+#include <gdk/gdkkeysyms.h>  // for GDK_KEY_Alt_L, GDK_KEY_z, etc.
 
 #include "control/Control.h"                       // for Control
 #include "control/layer/LayerController.h"         // for LayerController
@@ -30,11 +30,20 @@ BaseShapeHandler::BaseShapeHandler(Control* control, const PageRef& page, bool f
         snappingHandler(control->getSettings()),
         viewPool(std::make_shared<xoj::util::DispatchPool<xoj::view::ShapeToolView>>()) {
     snappingHandler.setPageRef(page);
+
+    // Predefined line styles for keyboard modifiers
+    std::vector<double> dashDashes = {6, 3};
+    dashLineStyle.setDashes(std::move(dashDashes));
+    std::vector<double> dotDashes = {0.5, 3};
+    dotLineStyle.setDashes(std::move(dotDashes));
 }
 
 BaseShapeHandler::~BaseShapeHandler() = default;
 
 void BaseShapeHandler::updateShape(bool isAltDown, bool isShiftDown, bool isControlDown) {
+    if (!this->stroke) {
+        return;
+    }
     auto [shape, rg] = this->createShape(isAltDown, isShiftDown, isControlDown);
     std::swap(shape, this->shape);
     Range repaintRange = rg.unite(lastSnappingRange);
@@ -44,6 +53,9 @@ void BaseShapeHandler::updateShape(bool isAltDown, bool isShiftDown, bool isCont
 }
 
 void BaseShapeHandler::cancelStroke() {
+    if (!this->stroke) {
+        return;
+    }
     this->shape.clear();
     Range repaintRange = this->lastSnappingRange;
     repaintRange.addPadding(0.5 * this->stroke->getWidth());
@@ -62,6 +74,44 @@ auto BaseShapeHandler::onKeyEvent(const KeyEvent& event, bool pressed) -> bool {
         isControlDown = pressed;
     } else if (event.keyval == GDK_KEY_Alt_L || event.keyval == GDK_KEY_Alt_R) {
         isAltDown = pressed;
+    } else if (event.keyval == GDK_KEY_z || event.keyval == GDK_KEY_Z || event.keyval == GDK_KEY_Cyrillic_ya ||
+               event.keyval == GDK_KEY_Cyrillic_YA) {
+        if (pressed && !dashPressed) {
+            dashPressed = true;
+            if (stroke) {
+                stroke->setLineStyle(dashLineStyle);
+                viewPool->dispatch(xoj::view::ShapeToolView::LINE_STYLE_CHANGE_REQUEST, dashLineStyle);
+                this->updateShape(isAltDown, isShiftDown, isControlDown);
+            }
+        } else if (!pressed && dashPressed) {
+            dashPressed = false;
+            LineStyle newStyle = dotPressed ? dotLineStyle : defaultLineStyle;
+            if (stroke) {
+                stroke->setLineStyle(newStyle);
+                viewPool->dispatch(xoj::view::ShapeToolView::LINE_STYLE_CHANGE_REQUEST, newStyle);
+                this->updateShape(isAltDown, isShiftDown, isControlDown);
+            }
+        }
+        return true;
+    } else if (event.keyval == GDK_KEY_x || event.keyval == GDK_KEY_X || event.keyval == GDK_KEY_Cyrillic_che ||
+               event.keyval == GDK_KEY_Cyrillic_CHE) {
+        if (pressed && !dotPressed) {
+            dotPressed = true;
+            if (stroke) {
+                stroke->setLineStyle(dotLineStyle);
+                viewPool->dispatch(xoj::view::ShapeToolView::LINE_STYLE_CHANGE_REQUEST, dotLineStyle);
+                this->updateShape(isAltDown, isShiftDown, isControlDown);
+            }
+        } else if (!pressed && dotPressed) {
+            dotPressed = false;
+            LineStyle newStyle = dashPressed ? dashLineStyle : defaultLineStyle;
+            if (stroke) {
+                stroke->setLineStyle(newStyle);
+                viewPool->dispatch(xoj::view::ShapeToolView::LINE_STYLE_CHANGE_REQUEST, newStyle);
+                this->updateShape(isAltDown, isShiftDown, isControlDown);
+            }
+        }
+        return true;
     } else {
         return false;
     }
@@ -129,6 +179,16 @@ void BaseShapeHandler::onButtonPressEvent(const PositionInputData& pos, double z
     this->currPoint = this->startPoint;
 
     this->stroke = createStroke(this->control);
+
+    // Save the default line style from the tool
+    this->defaultLineStyle = stroke->getLineStyle();
+
+    // Apply any active keyboard modifiers
+    if (dashPressed) {
+        stroke->setLineStyle(dashLineStyle);
+    } else if (dotPressed) {
+        stroke->setLineStyle(dotLineStyle);
+    }
 }
 
 void BaseShapeHandler::onButtonDoublePressEvent(const PositionInputData&, double) {

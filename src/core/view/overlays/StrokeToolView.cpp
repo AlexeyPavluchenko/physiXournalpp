@@ -116,6 +116,18 @@ void StrokeToolView::on(StrokeToolView::StrokeReplacementRequest, const Stroke& 
                (newStroke.getToolType() == StrokeTool::HIGHLIGHTER ? CAIRO_OPERATOR_MULTIPLY : CAIRO_OPERATOR_OVER));
 }
 
+void StrokeToolView::on(StrokeToolView::LineStyleChangeRequest, const LineStyle& newLineStyle) {
+    this->lineStyle = newLineStyle;
+    this->dashOffset = 0;
+    if (this->mask.isInitialized()) {
+        this->mask.wipe();
+        // Copy all points from the stroke into the point buffer so the entire stroke gets redrawn
+        this->pointBuffer = this->strokeHandler->getStroke()->getPointVector();
+        // Request a repaint so the mask gets redrawn with the new line style
+        this->parent->flagDirtyRegion(Range(this->strokeHandler->getStroke()->boundingRect()));
+    }
+}
+
 void StrokeToolView::deleteOn(StrokeToolView::FinalizationRequest, const Range& rg) {
     this->parent->drawAndDeleteToolView(this, rg);
 }

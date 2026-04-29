@@ -60,48 +60,68 @@ StrokeHandler::~StrokeHandler() = default;
 
 auto StrokeHandler::onKeyPressEvent(const KeyEvent& event) -> bool {
     auto keyval = event.keyval;
-    if (keyval == GDK_KEY_z || keyval == GDK_KEY_Cyrillic_ya) {
-        if (!dashPressed) {
-            dashPressed = true;
-            if (stroke) {
-                stroke->setLineStyle(dashLineStyle);
-                page->fireElementChanged(stroke.get());
+    switch (keyval) {
+        case GDK_KEY_z:
+        case GDK_KEY_Z:
+        case GDK_KEY_Cyrillic_ya:
+        case GDK_KEY_Cyrillic_YA: {
+            if (!dashPressed) {
+                dashPressed = true;
+                if (stroke) {
+                    stroke->setLineStyle(dashLineStyle);
+                    viewPool->dispatch(xoj::view::StrokeToolView::LINE_STYLE_CHANGE_REQUEST, dashLineStyle);
+                }
             }
+            return true;
         }
-        return true;
-    }
-    if (keyval == GDK_KEY_x || keyval == GDK_KEY_Cyrillic_che) {
-        if (!dotPressed) {
-            dotPressed = true;
-            if (stroke) {
-                stroke->setLineStyle(dotLineStyle);
-                page->fireElementChanged(stroke.get());
+        case GDK_KEY_x:
+        case GDK_KEY_X:
+        case GDK_KEY_Cyrillic_che:
+        case GDK_KEY_Cyrillic_CHE: {
+            if (!dotPressed) {
+                dotPressed = true;
+                if (stroke) {
+                    stroke->setLineStyle(dotLineStyle);
+                    viewPool->dispatch(xoj::view::StrokeToolView::LINE_STYLE_CHANGE_REQUEST, dotLineStyle);
+                }
             }
+            return true;
         }
-        return true;
+        default:
+            return false;
     }
-    return false;
 }
 
 auto StrokeHandler::onKeyReleaseEvent(const KeyEvent& event) -> bool {
     auto keyval = event.keyval;
-    if (keyval == GDK_KEY_z || keyval == GDK_KEY_Cyrillic_ya) {
-        dashPressed = false;
-        if (stroke) {
-            stroke->setLineStyle(dotPressed ? dotLineStyle : defaultLineStyle);
-            page->fireElementChanged(stroke.get());
+    switch (keyval) {
+        case GDK_KEY_z:
+        case GDK_KEY_Z:
+        case GDK_KEY_Cyrillic_ya:
+        case GDK_KEY_Cyrillic_YA: {
+            dashPressed = false;
+            if (stroke) {
+                LineStyle newStyle = dotPressed ? dotLineStyle : defaultLineStyle;
+                stroke->setLineStyle(newStyle);
+                viewPool->dispatch(xoj::view::StrokeToolView::LINE_STYLE_CHANGE_REQUEST, newStyle);
+            }
+            return true;
         }
-        return true;
-    }
-    if (keyval == GDK_KEY_x || keyval == GDK_KEY_Cyrillic_che) {
-        dotPressed = false;
-        if (stroke) {
-            stroke->setLineStyle(dashPressed ? dashLineStyle : defaultLineStyle);
-            page->fireElementChanged(stroke.get());
+        case GDK_KEY_x:
+        case GDK_KEY_X:
+        case GDK_KEY_Cyrillic_che:
+        case GDK_KEY_Cyrillic_CHE: {
+            dotPressed = false;
+            if (stroke) {
+                LineStyle newStyle = dashPressed ? dashLineStyle : defaultLineStyle;
+                stroke->setLineStyle(newStyle);
+                viewPool->dispatch(xoj::view::StrokeToolView::LINE_STYLE_CHANGE_REQUEST, newStyle);
+            }
+            return true;
         }
-        return true;
+        default:
+            return false;
     }
-    return false;
 }
 
 auto StrokeHandler::onMotionNotifyEvent(const PositionInputData& pos, double zoom) -> bool {
@@ -267,6 +287,13 @@ void StrokeHandler::onButtonReleaseEvent(const PositionInputData& pos, double zo
 
 void StrokeHandler::strokeRecognizerDetected(std::unique_ptr<Stroke> recognized, Layer* layer) {
     recognized->setWidth(stroke->hasPressure() ? stroke->getAvgPressure() : stroke->getWidth());
+
+    // Apply any active keyboard modifiers to the recognized shape
+    if (dashPressed) {
+        recognized->setLineStyle(dashLineStyle);
+    } else if (dotPressed) {
+        recognized->setLineStyle(dotLineStyle);
+    }
 
     // snapping
     if (control->getSettings()->getSnapRecognizedShapesEnabled()) {

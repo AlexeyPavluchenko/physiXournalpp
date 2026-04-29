@@ -43,6 +43,9 @@ public:
     } FLAG_DIRTY_REGION = {};
     void on(FlagDirtyRegionRequest, const Range& rg);
 
+    static constexpr struct LineStyleChangeRequest {
+    } LINE_STYLE_CHANGE_REQUEST = {};
+    void on(LineStyleChangeRequest, const LineStyle& style);
 
     static constexpr struct FinalizationRequest {
     } FINALIZATION_REQUEST = {};

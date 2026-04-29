@@ -17,9 +17,10 @@
 
 #include <gdk/gdk.h>  // for GdkEventKey
 
-#include "model/PageRef.h"  // for PageRef
-#include "model/Point.h"    // for Point
-#include "util/Range.h"     // for Range
+#include "model/LineStyle.h"  // for LineStyle
+#include "model/PageRef.h"    // for PageRef
+#include "model/Point.h"      // for Point
+#include "util/Range.h"       // for Range
 
 #include "InputHandler.h"            // for InputHandler
 #include "SnapToGridInputHandler.h"  // for SnapToGridInputHandler
@@ -113,4 +114,11 @@ protected:
     Point startPoint;       // May be snapped to grid
 
     std::shared_ptr<xoj::util::DispatchPool<xoj::view::ShapeToolView>> viewPool;
+
+    // Keyboard modifiers for line style (z = dash, x = dot)
+    bool dashPressed = false;
+    bool dotPressed = false;
+    LineStyle dashLineStyle;
+    LineStyle dotLineStyle;
+    LineStyle defaultLineStyle;
 };

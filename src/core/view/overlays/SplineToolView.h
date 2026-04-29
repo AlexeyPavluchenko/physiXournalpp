@@ -56,6 +56,10 @@ public:
     } FLAG_DIRTY_REGION = {};
     void on(FlagDirtyRegionRequest, Range rg);
 
+    static constexpr struct LineStyleChangeRequest {
+    } LINE_STYLE_CHANGE_REQUEST = {};
+    void on(LineStyleChangeRequest, const LineStyle& style);
+
     /**
      * @brief Called before the corresponding SplineHandler's destruction
      * @param rg The bounding box of the entire spline + drawing aids, to be repainted

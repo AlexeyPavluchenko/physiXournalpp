@@ -8,6 +8,7 @@
 
 #include "control/tools/SplineHandler.h"
 #include "control/zoom/ZoomControl.h"
+#include "model/LineStyle.h"
 #include "model/Point.h"
 #include "model/SplineSegment.h"
 #include "util/Assert.h"
@@ -127,6 +128,16 @@ void SplineToolView::on(FlagDirtyRegionRequest, Range rg) {
     maskWipeExtent = maskWipeExtent.unite(rg);
     rg.addPadding(LINE_WIDTH_WITHOUT_ZOOM / (2.0 * this->parent->getZoom()));
     this->parent->flagDirtyRegion(rg);
+}
+
+void SplineToolView::on(SplineToolView::LineStyleChangeRequest, const LineStyle& style) {
+    this->lineStyle = style;
+    // Trigger a redraw so the new line style takes effect
+    if (this->mask.isInitialized()) {
+        this->mask.wipe();
+        // Request a repaint of the entire area that was previously drawn
+        this->parent->flagDirtyRegion(maskWipeExtent);
+    }
 }
 
 void SplineToolView::deleteOn(SplineToolView::FinalizationRequest, Range rg) {
